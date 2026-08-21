@@ -1,0 +1,424 @@
+// import 'dart:io';
+
+// import 'package:flutter/material.dart';
+// import 'package:smart_opd_kiosk_v2_vertical/core/theme/app_theme.dart';
+// import 'package:smart_opd_kiosk_v2_vertical/screens/widgets/settings_screen/path_api_setting_selector.dart';
+// import 'package:usb_serial/usb_serial.dart';
+// import '../models/sound_mode.dart';
+// import '../providers/auth_provider.dart';
+// import '../models/display_mode.dart';
+// import '../models/working_mode.dart';
+// import '../models/device_models.dart';
+// import 'package:provider/provider.dart';
+// import '../providers/kiosk_state_provider.dart';
+// import '../providers/serial_provider.dart';
+// import '../providers/settings_provider.dart';
+// import 'widgets/settings_screen/device_setting_selector.dart';
+// import 'widgets/settings_screen/display_mode_selector.dart';
+// import 'widgets/settings_screen/hospital_logo_selector.dart';
+// import 'widgets/settings_screen/server_setting_selector.dart';
+// import 'widgets/settings_screen/settings_action_buttons.dart';
+// import 'widgets/settings_screen/working_mode_selector.dart';
+// import 'package:flutter_libserialport/flutter_libserialport.dart';
+
+// class SettingsScreen extends StatefulWidget {
+//   const SettingsScreen({super.key});
+
+//   @override
+//   State<SettingsScreen> createState() => _SettingsScreenState();
+// }
+
+// class _SettingsScreenState extends State<SettingsScreen>
+//     with SingleTickerProviderStateMixin {
+
+//   bool get _bpInvalid =>
+//       _selectedMode != WorkingMode.scaleOnly &&
+//       (_bpDevice == BloodPressureDevice.none || _bpPort.isEmpty);
+
+//   bool get _scaleInvalid =>
+//       _selectedMode != WorkingMode.bloodPressureOnly &&
+//       (_scaleDevice == ScaleDevice.none ||
+//           _scaleReadPort.isEmpty ||
+//           _scaleControlPort.isEmpty);
+
+//   WorkingMode _selectedMode = WorkingMode.combined;
+//   SoundMode _soundMode = SoundMode();
+//   DisplayMode _displayMode = const DisplayMode();
+
+//   TextEditingController _logoPathController = TextEditingController();
+
+//   // BP
+//   BloodPressureDevice _bpDevice = BloodPressureDevice.andTM2655;
+//   String _bpPort = '';
+
+//   // Scale
+//   ScaleDevice _scaleDevice = ScaleDevice.bam205A;
+//   String _scaleReadPort = '';
+//   String _scaleControlPort = '';
+
+//   List<String> _loadedPorts = [];
+
+//   List<String> get _availablePorts => _loadedPorts;
+
+//   //   List<String> get _availablePorts {
+//   //   if (Platform.isAndroid) return [];
+//   //   return SerialPort.availablePorts;
+//   // }
+
+//   // Server
+//   late TextEditingController _serverIpController;
+//   late TextEditingController _usernameController;
+//   late TextEditingController _passwordController;
+//   late TextEditingController _accessKeyController;
+//   late TextEditingController _secretKeyController;
+//   late TextEditingController _deviceNameController;
+
+//   late TextEditingController _loginController;
+//   late TextEditingController _getPatientsController;
+//   late TextEditingController _savevitalController;
+
+//   late TextEditingController _delayBPController;
+//   late TextEditingController _delayScaleController;
+
+//   bool _canSave() {
+//     if (_selectedMode == WorkingMode.bloodPressureOnly) {
+//       return _bpDevice != BloodPressureDevice.none;
+//     }
+
+//     if (_selectedMode == WorkingMode.scaleOnly) {
+//       return _scaleDevice != ScaleDevice.none;
+//     }
+
+//     if (_selectedMode == WorkingMode.combined) {
+//       return _bpDevice != BloodPressureDevice.none &&
+//           _scaleDevice != ScaleDevice.none;
+//     }
+
+//     return false;
+//   }
+  
+
+//   Future<void> _loadPorts() async {
+//     final ports = await getAvailablePorts();
+//     if (mounted) {
+//       setState(() => _loadedPorts = ports);
+//     }
+//   }
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _loadPorts();
+
+//     final settings = context.read<SettingsProvider>();
+
+//     _selectedMode = settings.workingMode;
+//     _soundMode = settings.soundMode;
+//     _displayMode = settings.displayMode;
+
+//     _serverIpController = TextEditingController(text: settings.serverIp);
+//     _usernameController = TextEditingController(text: settings.username);
+//     _passwordController = TextEditingController(text: settings.password);
+//     _accessKeyController = TextEditingController(text: settings.accessKey);
+//     _secretKeyController = TextEditingController(text: settings.secretKey);
+//     _deviceNameController = TextEditingController(text: settings.deviceName);
+
+//     _loginController = TextEditingController(text: settings.loginpath);
+//     _logoPathController = TextEditingController(text: settings.hospitalLogoPath);
+//     _getPatientsController = TextEditingController(
+//       text: settings.getpatientspath,
+//     );
+//     _savevitalController = TextEditingController(text: settings.savevitalpath);
+
+//     _bpPort = settings.bpPort;
+//     _scaleReadPort = settings.scaleReadPort;
+//     _scaleControlPort = settings.scaleControlPort;
+//     _bpDevice = settings.bpDevice;
+//     _scaleDevice = settings.scaleDevice;
+
+//     _delayBPController = TextEditingController(
+//       text: settings.delayBPSeconds.toString(),
+//     );
+
+//     _delayScaleController = TextEditingController(
+//       text: settings.delayScaleSeconds.toString(),
+//     );
+//   }
+
+//   @override
+//   void dispose() {
+//     _serverIpController.dispose();
+//     _usernameController.dispose();
+//     _passwordController.dispose();
+//     _accessKeyController.dispose();
+//     _secretKeyController.dispose();
+//     _deviceNameController.dispose();
+//     _logoPathController.dispose();
+//     _delayBPController.dispose();
+//     _delayScaleController.dispose();
+//     super.dispose();
+//   }
+
+//   Future<List<String>> getAvailablePorts() async {
+//     if (Platform.isAndroid) {
+//       final devices = await UsbSerial.listDevices();
+//       return devices.map((d) => d.deviceName).toList();
+//     } else {
+//       return SerialPort.availablePorts.toSet().toList();
+//     }
+//   }
+
+//   final _formKey = GlobalKey<FormState>();
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text('ตั้งค่าระบบ (System Settings)', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+//         backgroundColor: AppColors.darkGreen,
+//         foregroundColor: AppColors.darkGreen,
+//         elevation: 1,
+
+//         leading: IconButton(
+//           icon: const Icon(Icons.arrow_back),
+//           onPressed: () {
+//             final serial = context.read<SerialProvider>();
+//             serial.stop();
+//             context.read<KioskStageProvider>().reset(serial);
+//           },
+//         ),
+//       ),
+//       backgroundColor: AppColors.white,
+//       body: Form(
+//         key: _formKey,
+//         child: SingleChildScrollView(
+//           padding: const EdgeInsets.all(16),
+//           child: Column(
+//             children: [
+//               WorkingModeSelector(
+//                 value: _selectedMode,
+//                 onChanged: (mode) {
+//                   setState(() {
+//                     _selectedMode = mode;
+
+//                     if (mode == WorkingMode.bloodPressureOnly) {
+//                       _bpDevice = BloodPressureDevice.andTM2655;
+//                       _scaleReadPort = '';
+//                       _scaleControlPort = '';
+//                     }
+
+//                     if (mode == WorkingMode.scaleOnly) {
+//                       _scaleDevice = ScaleDevice.bam205A;
+//                       _bpPort = '';
+//                     }
+
+//                     if (mode == WorkingMode.combined) {
+//                       _bpPort = '';
+//                       _scaleReadPort = '';
+//                       _scaleControlPort = '';
+//                     }
+//                   });
+//                 },
+//               ),
+
+//               const Divider(height: 30),
+
+//               DeviceSettingSelector(
+//                 workingMode: _selectedMode,
+//                 availablePorts: _availablePorts,
+
+//                 bpDevice: _bpDevice,
+//                 bpPort: _bpPort,
+//                 onBpDeviceChanged: (v) => setState(() => _bpDevice = v),
+//                 onBpPortChanged: (v) => setState(() => _bpPort = v),
+
+//                 scaleDevice: _scaleDevice,
+//                 scaleReadPort: _scaleReadPort,
+//                 scaleControlPort: _scaleControlPort,
+//                 onScaleDeviceChanged: (v) => setState(() => _scaleDevice = v),
+//                 onScaleReadPortChanged: (v) =>
+//                     setState(() => _scaleReadPort = v),
+//                 onScaleControlPortChanged: (v) =>
+//                     setState(() => _scaleControlPort = v),
+
+//                 bpInvalid: _bpInvalid,
+//                 scaleInvalid: _scaleInvalid,
+//               ),
+
+//               const Divider(height: 30),
+
+//               Padding(
+//                 padding: const EdgeInsets.symmetric(vertical: 16),
+//                 child: Column(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     const Text(
+//                       'ตั้งค่าความหน่วง (วินาที)',
+//                       style: TextStyle(
+//                         fontSize: 30,
+//                         fontWeight: FontWeight.bold,
+//                         color: AppColors.primaryGreen,
+//                       ),
+//                     ),
+//                     const SizedBox(height: 15),
+//                     Row(
+//                       children: [
+//                         // ส่วนที่ 1: เครื่องวัดความดัน
+//                         Expanded(
+//                           child: _buildDelayInput(
+//                             label: 'เครื่องวัดความดัน',
+//                             controller: _delayBPController,
+//                           ),
+//                         ),
+//                         const SizedBox(width: 20),
+//                         Expanded(
+//                           child: _buildDelayInput(
+//                             label: 'เครื่องชั่งน้ำหนัก/ส่วนสูง',
+//                             controller: _delayScaleController,
+//                           ),
+//                         ),
+//                       ],
+//                     ),
+//                   ],
+//                 ),
+//               ),
+
+//               const Divider(height: 30),
+
+//               DisplayModeSelector(
+//                 value: _displayMode,
+//                 onChanged: (newValue) {
+//                   setState(() {
+//                     _displayMode = newValue;
+//                   });
+//                 },
+//               ),
+
+//               const Divider(height: 30),
+
+//               HospitalLogoSelector(controller: _logoPathController),
+
+//               const Divider(height: 30),
+
+//               ServerSettingSelector(
+//                 ipController: _serverIpController,
+//                 accessKeyController: _accessKeyController,
+//                 secretKeyController: _secretKeyController,
+//                 deviceNameController: _deviceNameController,
+//               ),
+
+//               const Divider(height: 30),
+
+//               PathApiSettingSelector(
+//                 loginController: _loginController,
+//                 getPatientsController: _getPatientsController,
+//                 savevitalController: _savevitalController,
+//               ),
+
+//               const Divider(height: 30),
+
+//               SettingsActionButtons(
+//                 canSave: _canSave(),
+//                 onCancel: () async {
+//                   final serial = context.read<SerialProvider>();
+//                   serial.stop();
+//                   context.read<KioskStageProvider>().reset(serial);
+//                 },
+
+//                 onSave: () async {
+//                   if (!_formKey.currentState!.validate()) {
+//                     return;
+//                   }
+
+//                   final settings = context.read<SettingsProvider>();
+//                   final auth = context.read<AuthProvider>();
+
+//                   var bpDevice = _bpDevice;
+//                   var bpPort = _bpPort;
+//                   var scaleDevice = _scaleDevice;
+//                   var scaleReadPort = _scaleReadPort;
+//                   var scaleControlPort = _scaleControlPort;
+
+//                   if (_selectedMode == WorkingMode.bloodPressureOnly) {
+//                     scaleDevice = ScaleDevice.none;
+//                     scaleReadPort = '';
+//                     scaleControlPort = '';
+//                   } else if (_selectedMode == WorkingMode.scaleOnly) {
+//                     bpDevice = BloodPressureDevice.none;
+//                     bpPort = '';
+//                   }
+
+//                   await settings.save(
+//                     workingMode: _selectedMode,
+//                     soundMode: _soundMode,
+//                     displayMode: _displayMode,
+//                     bpDevice: bpDevice,
+//                     bpPort: bpPort,
+//                     scaleDevice: scaleDevice,
+//                     scaleReadPort: scaleReadPort,
+//                     scaleControlPort: scaleControlPort,
+//                     serverIp: _serverIpController.text,
+//                     username: _usernameController.text,
+//                     password: _passwordController.text,
+//                     accessKey: _accessKeyController.text,
+//                     secretKey: _secretKeyController.text,
+//                     deviceName: _deviceNameController.text,
+//                     loginpath: _loginController.text,
+//                     getpatientspath: _getPatientsController.text,
+//                     savevitalpath: _savevitalController.text,
+//                     hospitalLogoPath: _logoPathController.text,
+//                     delayBPSeconds:
+//                         int.tryParse(_delayBPController.text) ?? 180,
+//                     delayScaleSeconds:
+//                         int.tryParse(_delayScaleController.text) ?? 180,
+//                   );
+
+//                   final serial = context.read<SerialProvider>();
+//                   serial.stop();
+
+//                   await auth.logout();
+
+//                   context.read<KioskStageProvider>().setStage(
+//                     KioskStage.loading,
+//                   );
+
+//                   // context.read<KioskStageProvider>().reset(serial);
+//                 },
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _buildDelayInput({
+//     required String label,
+//     required TextEditingController controller,
+//   }) {
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Text(
+//           label,
+//           style: const TextStyle(fontSize: 24, color: Colors.black54),
+//         ),
+//         const SizedBox(height: 8),
+//         TextField(
+//           controller: controller,
+//           style: const TextStyle(fontSize: 22),
+//           keyboardType: TextInputType.number,
+//           decoration: const InputDecoration(
+//             isDense: true,
+//             suffixText: 'วินาที',
+//             suffixStyle: TextStyle(fontSize: 22),
+//             border: OutlineInputBorder(),
+//             focusedBorder: OutlineInputBorder(
+//               borderSide: BorderSide(color: AppColors.primaryGreen, width: 2),
+//             ),
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+// }

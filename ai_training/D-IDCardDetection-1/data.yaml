@@ -1,0 +1,20 @@
+names:
+- Address_th
+- Date_of_Birth
+- Date_of_Expiry
+- Date_of_Issue
+- First_Name
+- ID_Number
+- Image
+- Last_Name
+- Thai_Name
+nc: 9
+roboflow:
+  license: MIT
+  project: d-idcarddetection-ev4qr
+  url: https://universe.roboflow.com/pluems-workspace/d-idcarddetection-ev4qr/dataset/1
+  version: 1
+  workspace: pluems-workspace
+test: ../test/images
+train: ../train/images
+val: ../valid/images

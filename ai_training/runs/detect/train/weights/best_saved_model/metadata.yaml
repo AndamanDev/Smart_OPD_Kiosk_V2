@@ -1,0 +1,30 @@
+description: Ultralytics best model trained on D-IDCardDetection-1/data.yaml
+author: Ultralytics
+date: '2026-03-11T15:29:10.940332'
+version: 8.4.21
+license: AGPL-3.0 License (https://ultralytics.com/license)
+docs: https://docs.ultralytics.com
+stride: 32
+task: detect
+batch: 1
+imgsz:
+- 640
+- 640
+names:
+  0: Address_th
+  1: Date_of_Birth
+  2: Date_of_Expiry
+  3: Date_of_Issue
+  4: First_Name
+  5: ID_Number
+  6: Image
+  7: Last_Name
+  8: Thai_Name
+args:
+  batch: 1
+  fraction: 1.0
+  half: false
+  int8: false
+  nms: false
+channels: 3
+end2end: false

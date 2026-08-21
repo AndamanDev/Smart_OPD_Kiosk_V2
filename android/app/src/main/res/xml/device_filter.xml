@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <usb-device vendor-id="1423"  />
+    <!-- CH340 / CH341 (QinHeng) 0x1A86 -->
+    <usb-device vendor-id="6790" />
+    <!-- FTDI 0x0403 -->
+    <usb-device vendor-id="1027" />
+    <!-- CP210x (Silicon Labs) 0x10C4 -->
+    <usb-device vendor-id="4292" />
+    <!-- PL2303 (Prolific) 0x067B -->
+    <usb-device vendor-id="1659" />
+</resources>
