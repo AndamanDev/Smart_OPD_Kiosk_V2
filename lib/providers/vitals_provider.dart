@@ -56,17 +56,11 @@ class VitalsProvider extends ChangeNotifier {
       // สร้าง visit_date เป็น ISO 8601 UTC
       final visitDate = DateTime.now().toUtc().toIso8601String();
 
-      // payload — ค่าที่ไม่มีให้เป็น 0 (note เป็น "")
-      // ยกเว้น height/weight: ส่งเฉพาะตอนมีค่าจริง เพื่อไม่ให้ 0 ไปทับค่าเดิม
+      // payload — ค่าวัดต่างๆ ส่งเฉพาะตอนมีค่าจริง (ไม่ใส่ key = undefined)
+      // เพื่อไม่ให้ค่าว่างไปทับค่าเดิม
       Map<String, dynamic> payload = {
         "hn": patientHn,
         "visit_date": visitDate,
-        "temperature": null,
-        "pulse": null,
-        "systolic": null,
-        "diastolic": null,
-        "respiratory_rate": null,
-        "oxygen_saturation": null,
         "note": "",
       };
 
