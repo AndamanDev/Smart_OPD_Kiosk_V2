@@ -61,7 +61,6 @@ class VitalsProvider extends ChangeNotifier {
       Map<String, dynamic> payload = {
         "hn": patientHn,
         "visit_date": visitDate,
-        "note": "",
       };
 
       if (settings.workingMode == WorkingMode.scaleOnly) {

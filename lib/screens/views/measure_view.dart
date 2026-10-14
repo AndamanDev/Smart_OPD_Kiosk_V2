@@ -397,16 +397,16 @@ class _MeasureViewState extends State<MeasureView> {
       print("Vitals save result: $success");
 
       if (!success) {
-        _snack("❌ บันทึกไม่สำเร็จ\n"
-            "สาเหตุ: ${vitals.errorMessage ?? 'ไม่ทราบ'}\n"
-            "HN=$hn  ค่า: $rawData");
+        // _snack("❌ บันทึกไม่สำเร็จ\n"
+        //     "สาเหตุ: ${vitals.errorMessage ?? 'ไม่ทราบ'}\n"
+        //     "HN=$hn  ค่า: $rawData");
         kiosk.setStage(KioskStage.savemeasureError);
         return;
       }
 
-      _snack("✅ บันทึกสำเร็จ  HN=$hn\n$rawData", ok: true);
+      // _snack("✅ บันทึกสำเร็จ  HN=$hn\n$rawData", ok: true);
     } else {
-      _snack("⚠ ไม่พบ HN ผู้ป่วย — ข้ามการบันทึก\nค่า: $rawData");
+      // _snack("⚠ ไม่พบ HN ผู้ป่วย — ข้ามการบันทึก\nค่า: $rawData");
     }
 
     if (settings.workingMode == WorkingMode.combined) {
